@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+</head>
+<body>
+    <div id="banner">
+        <span id="name">Оборудование</span>
+    </div>
+
+    <div id="content">
+        <span id="info">Список устройств</span>
+        
+        <table border="">
+            <thead>
+                <th>N</th>
+                <th>Инвертарный номер</th>
+                <th>Тип устройства</th>
+                <th>Производитель</th>
+                <th>Модель</th>
+                <th>Серийный номер</th>
+                <th>Статус</th>
+                <th>Действие</th>
+            </thead>
+            <tbody>
+                {% for i in table_contents %}
+                    <tr>
+                        <td>{{ i.0 }}</td>
+                        <td>{{ i.1.inv_num }}</td>
+                        <td>{{ i.1.type }}</td>
+                        <td>{{ i.1.vendor }}</td>
+                        <td>{{ i.1.model }}</td>
+                        <td>{{ i.1.serial }}</td>
+                        <td>
+                            {% if i.1.status == 0 %}
+                            Нет
+                            {% elif i.1.status == 1 %}
+                            Списано
+                            {% else %}
+                            Утилизация
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="button" id="edit_btn">Изменить</button>
+                            <button class="button" id="delete_btn">Удалить</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="{{ table_contents|length|add:2 }}" id="add_device_field">
+                        <div id="add_device">
+                            <span id="add_device_sign">+</span>
+                            <span id="add_device_text">Добавить новое устройство</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+<style>
+    body {
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    #banner {
+        display: flex;
+        align-items: center;
+        height: 70px;
+    
+        background-color: #3abb44 !important;
+    
+        margin-bottom: 20px;
+    }
+
+    #banner #name {
+        font-size: 24px;
+        margin-left: 20px;
+    }
+
+    #info {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    table {
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+    table thead th {
+        text-align: left;
+        padding: 10px;
+    }
+
+    table tbody tr td {
+        padding: 10px;
+    }
+
+    table tbody tr:nth-child(even) {
+        background-color: #999;
+    }
+
+    #content {
+        margin-left: 10px;
+    }
+
+    #add_device_field {
+        padding: 15px;
+        text-align: center;
+        background-color: #ccc;
+    
+        font-weight: bold;
+    }
+
+    #add_device {
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+    }
+
+    #add_device_sign {
+        font-size: 36px;
+
+        padding-right: 6px;
+    }
+
+    .button {
+        padding: 6px;
+
+        border: black 1px solid;
+        border-radius: 7px;
+    }
+
+    #edit_btn {
+        background-color: rgb(59, 59, 196);
+
+        color: white;
+    }
+
+    #delete_btn {
+        background-color: red;
+        color: white;
+    }
+</style>
+
+<script>
+    var months = [
+        "января",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    ]
+
+    var info = document.getElementById("info")
+    var date = new Date();
+
+    info.innerHTML += " на " + 
+                        date.getDate() + " " + 
+                        months[date.getMonth()] + " " + 
+                        date.getFullYear() + " г. " +
+                        "(" + String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") + ")"
+</script>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+</head>
+<body>
+    {% load array %}
+    <div id="banner">
+        <span id="name">Оборудование</span>
+    </div>
+
+    <div id="content">
+        <span id="info">Добавить оборудование</span>
+
+        <table border="">
+        <thead>
+        </thead>
+            <tbody>
+                <!-- Input fields -->
+
+                {% for i in input_fields %}
+                    <tr>
+                        <td>{{ rus_names|return_item:i }}</td>
+                        <td><input id="{{ input_fields|return_item:forloop.counter0 }}"></input></td>
+                    </tr>
+                {% endfor %}
+                
+                <!-- Fields with dropdown menu -->
+                {% for i in dropdown_menu_fields %}
+                    <tr>
+                        <td>{{ rus_names|return_item:i.0 }}</td>
+                        <td>
+                            <select id="{{ i.0 }}">
+                                {% for j in i.1 %}
+                                    <option value="{{ j.0 }}">{{ j.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button onclick="check_and_send()" id="send">Отправить</button>
+    </div>
+</body>
+</html>
+
+<style>
+    body {
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    #banner {
+        display: flex;
+        align-items: center;
+        height: 70px;
+    
+        background-color: #3abb44 !important;
+    
+        margin-bottom: 20px;
+    }
+
+    #banner #name {
+        font-size: 24px;
+        margin-left: 20px;
+    }
+
+    #info {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    table {
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+    table thead th {
+        text-align: left;
+        padding: 10px;
+    }
+
+    table tbody tr td {
+        padding: 10px;
+    }
+
+    table tbody tr:nth-child(even) {
+        background-color: #999;
+    }
+
+    #send {
+        margin-top: 20px;
+        padding: 15px;
+
+        color: white;
+
+        font-weight: bold;
+
+        background-color: green;
+        border: 0;
+
+        border-radius: 10px;
+    }
+
+    #content {
+        margin-left: 10px;
+    }
+</style>
