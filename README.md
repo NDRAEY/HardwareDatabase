@@ -1,0 +1,2 @@
+# HardwareDatabase
+Приложение Django
