@@ -22,14 +22,14 @@ class DeviceStatus:
 
 
 class Hardware:
-    def __init__(self, inv_num, type_, vendor, model, serial, status = DeviceStatus.NORMAL):
+    def __init__(self, inv_num, type_, vendor, model, serial, description, status = DeviceStatus.NORMAL):
         self.inv_num = inv_num
         self.type = type_
         self.vendor = vendor
         self.model = model
         self.serial = serial
         self.status = status
-
+        self.description = description
 
 class Database:
     def __init__(self) -> None:
@@ -50,11 +50,15 @@ class Database:
         self.field_table_names = self.db.field_db_names
 
     def setup(self):
-        self.field_table_names.delete_many({}) # Delete all
         self.field_table_names.insert_one(field_to_name_dict)
-
-        self.hardware_statuses.delete_many({}) # Delete all
         self.hardware_statuses.insert_one({"labels": out_of_service_labels})
+
+    # For debugging
+    def clean_db(self):
+        "Remove every collection data to make a clean DB"
+        self.field_table_names.delete_many({})
+        self.hardware_statuses.delete_many({})
+        self.hardware_table.delete_many({})
 
     def add_hardware(self, hardware: Hardware):
         # INV NUMS should not repeat!
@@ -94,14 +98,15 @@ class Database:
 if __name__ == "__main__":
     db = Database()
 
+    db.clean_db()
     db.setup()
 
-    hw =  Hardware(800, "Ноутбук", "Rammer", "PowerBook Zeraora V2", "MZ0000001")
-    hw2 = Hardware(801, "Маршрутизатор", "Besk", "Lannive QA Plus", "AWN-100566632")
-    hw3 = Hardware(802, "Монитор", "Overture", "Emix A2", "XSPN-111111111")
-    hw4 = Hardware(803, "Проектор", "Overture", "Avenue 2", "XSPN-367293224")
-    hw5 = Hardware(804, "Системный блок", "Rammer", "Woundhealer E1", "MZ847284364")
-    hw6 = Hardware(805, "Жесткий диск", "ByteSaver", "LAVI-W", "UT0102223")
+    hw =  Hardware(800, "Ноутбук", "Rammer", "PowerBook Zeraora V2", "MZ0000001", "CPU: Intel Core i3")
+    hw2 = Hardware(801, "Маршрутизатор", "Besk", "Lannive QA Plus", "AWN-100566632", "WiFi 6 included!")
+    hw3 = Hardware(802, "Монитор", "Overture", "Emix A2", "XSPN-111111111", "4K resuolution in 60 fps!")
+    hw4 = Hardware(803, "Проектор", "Overture", "Avenue 2", "XSPN-367293224", "Projector with high resolution and strong light")
+    hw5 = Hardware(804, "Системный блок", "Rammer", "Woundhealer E1", "MZ847284364", "With water cooling!")
+    hw6 = Hardware(805, "Жесткий диск", "ByteSaver", "LAVI-W", "UT0102223", "2 TB Hard Drive 100 MB/s")
 
     for i in (hw, hw2, hw3, hw4, hw5, hw6):
         db.add_hardware(i)
