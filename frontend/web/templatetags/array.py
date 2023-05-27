@@ -8,3 +8,10 @@ def return_item(l, i):
         return l[i]
     except:
         return None
+
+@register.filter
+def len_array(l):
+    try:
+        return len(l)
+    except:
+        return None

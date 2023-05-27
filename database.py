@@ -1,33 +1,41 @@
 import pymongo
 import toml
 
-field_to_name_dict = {
-    'inv_num': 'Инвертарный номер',
-    'vendor': 'Производитель',
-    'model': 'Модель',
-    'type': 'Тип',
-    'serial': 'Серийный номер',
-    'status': 'Статус'
+DEFAULT_STATUSES = ["Нет", "Списано", "Утилизировано"]
+DEFAULT_HARDWARE_TYPES = [
+    "ПК",
+    "Принтер",
+    "Камера видеонаблюдения",
+    "Монитор",
+    "Аудиосистема"
+]
+
+table_fields = {
+    'inv_num': {'type': 'input', 'show': 'Инвертарный номер'},
+    'vendor': {'type': 'input', 'show': 'Производитель'},
+    'model': {'type': 'input', 'show': 'Модель'},
+    'type': {'type': 'dropdown', 'show': 'Тип', 'elements': DEFAULT_HARDWARE_TYPES},
+    'serial': {'type': 'input', 'show': 'Серийный номер'},
+    'status': {'type': 'dropdown', 'show': 'Статус', 'elements': DEFAULT_STATUSES},
+    'description': {'type': 'textbox', 'show': 'Описание'},
 }
 
-out_of_service_labels = ["Нет", "Списано", "Утилизировано"]
-
-class DeviceStatus:
-    NORMAL = 0
-    OUT_OF_SERVICE = 1
-    UTILIZED = 2
-    
-    def __init__(self, status):
-        self.status = status
-
+metadata = {
+    'statuses': DEFAULT_STATUSES,
+    'hardware_types': DEFAULT_HARDWARE_TYPES
+}
 
 class Hardware:
-    def __init__(self, inv_num, type_, vendor, model, serial, description, status = DeviceStatus.NORMAL):
+    def __init__(self, inv_num, type_, vendor, model, serial, description, status = "Нет"):
         self.inv_num = inv_num
         self.type = type_
         self.vendor = vendor
         self.model = model
         self.serial = serial
+
+        if status not in table_fields['status']['elements']:
+            raise ValueError(f"Status does not exist: '{status}'")
+
         self.status = status
         self.description = description
 
@@ -46,22 +54,27 @@ class Database:
         self.db = self.connection.hardware
 
         self.hardware_table = self.db.hwtable
-        self.hardware_statuses = self.db.statuses
-        self.field_table_names = self.db.field_db_names
+        self.table_fields = self.db.table_fields
+        self.metadata = self.db.metadata
 
     def setup(self):
-        self.field_table_names.insert_one(field_to_name_dict)
-        self.hardware_statuses.insert_one({"labels": out_of_service_labels})
+        self.table_fields.insert_one(table_fields)
+        self.metadata.insert_one(metadata)
 
     # For debugging
     def clean_db(self):
         "Remove every collection data to make a clean DB"
-        self.field_table_names.delete_many({})
-        self.hardware_statuses.delete_many({})
+        self.table_fields.delete_many({})
         self.hardware_table.delete_many({})
+        self.metadata.delete_many({})
+
+    def is_inv_num_free(self, num: int):
+        return not (num in [i['inv_num'] for i in self.get_all()])
 
     def add_hardware(self, hardware: Hardware):
         # INV NUMS should not repeat!
+
+        print("Add hw")
 
         invs = [i['inv_num'] for i in self.get_all()]
 

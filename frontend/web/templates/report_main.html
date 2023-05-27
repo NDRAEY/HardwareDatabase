@@ -31,30 +31,22 @@
             </thead>
             <tbody>
                 {% for i in table_contents %}
-                    <tr title="{{ i.1.description }}">
+                    <tr id="{{ i.1.inv_num }}" title="{{ i.1.description }}">
                         <td>{{ i.0 }}</td>
                         <td>{{ i.1.inv_num }}</td>
                         <td>{{ i.1.type }}</td>
                         <td>{{ i.1.vendor }}</td>
                         <td>{{ i.1.model }}</td>
                         <td>{{ i.1.serial }}</td>
-                        <td>
-                            {% if i.1.status == 0 %}
-                            Нет
-                            {% elif i.1.status == 1 %}
-                            Списано
-                            {% else %}
-                            Утилизация
-                            {% endif %}
-                        </td>
+                        <td>{{ i.1.status }}</td>
                         <td>
                             <button class="button" id="edit_btn">Изменить</button>
-                            <button class="button" id="delete_btn">Удалить</button>
+                            <button class="button" id="delete_btn" onclick="delete_hw({{ i.1.inv_num }})">Удалить</button>
                         </td>
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="{{ table_contents|length|add:2 }}" id="add_device_field" onclick="show_add_dev()">
+                    <td colspan="{{ fields.keys|len_array|add:1 }}" id="add_device_field" onclick="show_add_dev()">
                         <div id="add_device">
                             <span id="add_device_sign">+</span>
                             <span id="add_device_text">Добавить новое устройство</span>
@@ -73,32 +65,30 @@
                     </span>
                 </div>
                 <table border="">
-                    <tbody>
-                        <!-- Input fields -->
+                    <tbody id="add_dev_table">
+                        <!-- Fields -->
         
-                        {% for i in input_fields %}
+                        {% for id, value in fields.items %}
                             <tr>
-                                <td>{{ rus_names|return_item:i }}</td>
-                                <td><input id="{{ input_fields|return_item:forloop.counter0 }}"></input></td>
-                            </tr>
-                        {% endfor %}
-                        
-                        <!-- Fields with dropdown menu -->
-                        {% for i in dropdown_menu_fields %}
-                            <tr>
-                                <td>{{ rus_names|return_item:i.0 }}</td>
+                                <td>{{ value.show }}</td>
                                 <td>
-                                    <select id="{{ i.0 }}">
-                                        {% for j in i.1 %}
-                                            <option value="{{ j.0 }}">{{ j.1 }}</option>
+                                    {% if value.type == "input" %}
+                                    <input id="{{ id }}"></input>
+                                    {% elif value.type == "dropdown" %}
+                                    <select id="{{ id }}">
+                                        {% for elem in value.elements %}
+                                        <option value="{{ elem }}">{{ elem }}</option>
                                         {% endfor %}
                                     </select>
+                                    {% elif value.type == "textbox" %}
+                                    <textarea id="{{ id }}"></textarea>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                     </table>
-                    <button class="button" style="margin-top: 5px">Окей</button>
+                    <button class="button" style="margin-top: 5px" id="add_dev_btn" onclick="add_device()">Окей</button>
               </div>
         </div>
     </div>
@@ -191,16 +181,18 @@
         color: white;
     }
 
-    .model-content.titlebox {
+    .modal .modal-content .titlebox {
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .modal-content.titlebox.close {
+    .modal .modal-content .titlebox .close {
         order: 1;
     }
-    .modal-content.titlebox.title {
+
+    .modal .modal-content .titlebox .title {
+        font-size: 18px;
         order: 0;
     }
 </style>
@@ -221,14 +213,15 @@
         "декабря"
     ]
 
-    var info = document.getElementById("info")
     var date = new Date();
 
-    info.innerHTML += " на " + 
+    document.getElementById("info").innerHTML += " на " + 
                         date.getDate() + " " + 
                         months[date.getMonth()] + " " + 
                         date.getFullYear() + " г. " +
                         "(" + String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") + ")"
+
+    // Modal window control for adding
 
     var modal_add = document.getElementById("add_dev_modal")
     
@@ -238,5 +231,125 @@
 
     function hide_add_dev() {
         modal_add.style.display = "none"
+    }
+
+    // Work with add form
+
+    var add_form = document.getElementById("add_dev_table")
+    var add_form_btn = document.getElementById("add_dev_btn")
+    var fields = [{% for id, value in fields.items %}"{{ id }}", {% endfor %}];
+
+    function get_add_form_elems() {
+        if(modal_add.style.display == "none" || modal_add.style.display == "") {
+            return;
+        }
+
+        var supported = [];
+
+        for(var i of add_form.childNodes.entries()) {
+            if(i[1].tagName == "TR") {
+                supported.push(i[1])
+            }
+        }
+
+        var elems = [];
+
+        for(var i of supported) {
+            elems.push(i.childNodes[3].childNodes[1])  // NOTE: Fourth element is a second <td> tag and input is located at the second element of <td> tag!
+        }
+
+        return elems;
+    }
+
+    function get_form_values(elems) {
+        var request = {};
+
+        for(var i in fields) {
+            request[fields[i]] = elems[i].value
+        }
+
+        return request;
+    }
+
+    function object_to_get(data) {
+        var total = "?"
+
+        for(i of Object.keys(data)) {
+            total += i + "=" + data[i] + "&"
+        }
+
+        return total
+    }
+
+    function send_add_form_data(data) {
+        let resp = fetch("/cmd" + object_to_get(data) + "cmd=new")
+        let response = resp.then(response => {return response.json()})
+
+        return response
+    }
+
+    function add_device() {
+        add_form_btn.disabled = true;
+
+        elems = get_add_form_elems()
+        values = get_form_values(elems)
+
+        resp = send_add_form_data(values)
+        
+        resp.then((data) => {
+            if(data.ok) {
+                hide_add_dev();
+                location.reload()
+            } else {
+                for(i of elems) {
+                    i.style.backgroundColor = "white"
+                }
+                document.getElementById(data.message).style.backgroundColor = "red"
+            }
+        })
+        
+        add_form_btn.disabled = false;
+    }
+
+    function get_data_in_table(inv_num) {
+        row = document.getElementById(String(inv_num)).childNodes
+        cols = []
+        
+        for(i of row) {
+            if(i.tagName && i.tagName == "TD")
+            cols.push(i.innerHTML)
+        }
+
+        cols = cols.slice(0, cols.length - 1)
+
+        return cols
+    }
+
+    function delete_hw(inv_num) {
+        dev = get_data_in_table(inv_num)
+        really = confirm("Вы точно хотите удалить устройство: \"" + dev[2] + " " + dev[3] + " " + dev[4] + "\"?")
+    
+        if(really) {
+            let resp = fetch("/cmd?inv_num=" + inv_num + "&cmd=del")
+            resp.then(r => r.json()).then(j => {
+                if(j.ok) {
+                    location.reload()
+                }
+            })
+        }
+    }
+
+    window.onload = () => {
+        var supported = [];
+
+        for(var i of add_form.childNodes.entries()) {
+            if(i[1].tagName == "TR") {
+                supported.push(i[1])
+            }
+        }
+
+        for(var i of supported) {
+            i.childNodes[3].childNodes[1].value = ""
+        }
     }
 </script>
