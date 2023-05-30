@@ -7,14 +7,17 @@ DEFAULT_HARDWARE_TYPES = [
     "Принтер",
     "Камера видеонаблюдения",
     "Монитор",
-    "Аудиосистема"
+    "Аудиосистема",
+    "Монитор",
+    "Проектор",
+    "Маршрутизатор"
 ]
 
 table_fields = {
     'inv_num': {'type': 'input', 'show': 'Инвертарный номер'},
+    'type': {'type': 'dropdown', 'show': 'Тип', 'elements': DEFAULT_HARDWARE_TYPES},
     'vendor': {'type': 'input', 'show': 'Производитель'},
     'model': {'type': 'input', 'show': 'Модель'},
-    'type': {'type': 'dropdown', 'show': 'Тип', 'elements': DEFAULT_HARDWARE_TYPES},
     'serial': {'type': 'input', 'show': 'Серийный номер'},
     'status': {'type': 'dropdown', 'show': 'Статус', 'elements': DEFAULT_STATUSES},
     'description': {'type': 'textbox', 'show': 'Описание'},
@@ -114,11 +117,11 @@ if __name__ == "__main__":
     db.clean_db()
     db.setup()
 
-    hw =  Hardware(800, "Ноутбук", "Rammer", "PowerBook Zeraora V2", "MZ0000001", "CPU: Intel Core i3")
+    hw =  Hardware(800, "ПК", "Rammer", "PowerBook Zeraora V2", "MZ0000001", "CPU: Intel Core i3")
     hw2 = Hardware(801, "Маршрутизатор", "Besk", "Lannive QA Plus", "AWN-100566632", "WiFi 6 included!")
     hw3 = Hardware(802, "Монитор", "Overture", "Emix A2", "XSPN-111111111", "4K resuolution in 60 fps!")
     hw4 = Hardware(803, "Проектор", "Overture", "Avenue 2", "XSPN-367293224", "Projector with high resolution and strong light")
-    hw5 = Hardware(804, "Системный блок", "Rammer", "Woundhealer E1", "MZ847284364", "With water cooling!")
+    hw5 = Hardware(804, "ПК", "Rammer", "Woundhealer E1", "MZ847284364", "With water cooling!")
     hw6 = Hardware(805, "Жесткий диск", "ByteSaver", "LAVI-W", "UT0102223", "2 TB Hard Drive 100 MB/s")
 
     for i in (hw, hw2, hw3, hw4, hw5, hw6):

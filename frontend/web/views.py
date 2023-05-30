@@ -100,6 +100,8 @@ def command(request):
 
         print(f"Remove: {other_data['inv_num']}")
 
+    # To edit entry we need to use .update() method what receives query and datas to edit.
+
     # JSON response
     return HttpResponse(json.dumps({
         "ok": True

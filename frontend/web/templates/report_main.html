@@ -1,6 +1,15 @@
 {% load static %}
 {% load array %}
 
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+<!-- TODO: Reduce code by classifying into JS and CSS files -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,7 +49,7 @@
                         <td>{{ i.1.serial }}</td>
                         <td>{{ i.1.status }}</td>
                         <td>
-                            <button class="button" id="edit_btn">Изменить</button>
+                            <button class="button" id="edit_btn" onclick="edit_mode({{ i.1.inv_num }})">Изменить</button>
                             <button class="button" id="delete_btn" onclick="delete_hw({{ i.1.inv_num }})">Удалить</button>
                         </td>
                     </tr>
@@ -61,7 +70,8 @@
                 <div class="titlebox">
                     <span class="close" onclick="hide_add_dev()">&times;</span>
                     <span class="title">
-                        <b>Добавить устройство</b>
+                        <b id="add_dev_text">Добавить устройство</b>
+                        <b id="edit_dev_text">Редактировать устройство</b>
                     </span>
                 </div>
                 <table border="">
@@ -224,13 +234,54 @@
     // Modal window control for adding
 
     var modal_add = document.getElementById("add_dev_modal")
-    
+
+    var is_editing = false;
+    var edit_num = 0;
+    var edit_orig_datas = null;
+
+    function edit_mode(num) {
+        is_editing = true;
+        edit_num = num;
+
+        edit_elem = document.getElementById(String(num))
+        
+        cols = Array.from(edit_elem.childNodes).filter(a => a.tagName == "TD")
+        cols = cols.slice(1, cols.length - 1)  // Needed columns (ID and actions are not)
+
+        datas = cols.map(a => a.childNodes[0].data)  // Get values from a row's colums
+        
+        datas.push(edit_elem.getAttribute("title"))  // Add description
+
+        edit_orig_datas = datas
+        
+        show_add_dev()
+
+        form_elems = get_add_form_elems()
+
+        for(i in form_elems) {
+            form_elems[i].value = datas[i]
+        }
+
+        console.log(datas)
+
+    }
+
     function show_add_dev() {
         modal_add.style.display = "flex"
+
+        if(is_editing) {
+            document.getElementById("add_dev_text").style.display = "none"
+            document.getElementById("edit_dev_text").style.display = "block"
+        } else {
+            document.getElementById("add_dev_text").style.display = "block"
+            document.getElementById("edit_dev_text").style.display = "none"
+        }
     }
 
     function hide_add_dev() {
         modal_add.style.display = "none"
+    
+        is_editing = false;
     }
 
     // Work with add form
@@ -272,7 +323,7 @@
     }
 
     function object_to_get(data) {
-        var total = "?"
+        var total = ""
 
         for(i of Object.keys(data)) {
             total += i + "=" + data[i] + "&"
@@ -282,7 +333,14 @@
     }
 
     function send_add_form_data(data) {
-        let resp = fetch("/cmd" + object_to_get(data) + "cmd=new")
+        let resp = fetch("/cmd?" + object_to_get(data) + "cmd=new")
+        let response = resp.then(response => {return response.json()})
+
+        return response
+    }
+
+    function send_edit_form_data(old_data, data) {
+        let resp = fetch("/cmd?" + object_to_get(old_data) + object_to_get(data) + "cmd=edit")
         let response = resp.then(response => {return response.json()})
 
         return response
@@ -294,31 +352,42 @@
         elems = get_add_form_elems()
         values = get_form_values(elems)
 
-        resp = send_add_form_data(values)
-        
-        resp.then((data) => {
-            if(data.ok) {
-                hide_add_dev();
-                location.reload()
-            } else {
-                for(i of elems) {
-                    i.style.backgroundColor = "white"
+        if(!is_editing) {
+            resp = send_add_form_data(values)
+            
+            resp.then((data) => {
+                if(data.ok) {
+                    hide_add_dev();
+                    location.reload()
+                } else {
+                    for(i of elems) {
+                        i.style.backgroundColor = "white"
+                    }
+                    document.getElementById(data.message).style.backgroundColor = "red"
                 }
-                document.getElementById(data.message).style.backgroundColor = "red"
-            }
-        })
+            })
+        } else {
+            resp = send_edit_form_data(edit_orig_datas, values)
+            
+            resp.then((data) => {
+                if(data.ok) {
+                    hide_add_dev();
+                    location.reload()
+                } else {
+                    for(i of elems) {
+                        i.style.backgroundColor = "white"
+                    }
+                    document.getElementById(data.message).style.backgroundColor = "red"
+                }
+            })
+        }
         
         add_form_btn.disabled = false;
     }
 
     function get_data_in_table(inv_num) {
         row = document.getElementById(String(inv_num)).childNodes
-        cols = []
-        
-        for(i of row) {
-            if(i.tagName && i.tagName == "TD")
-            cols.push(i.innerHTML)
-        }
+        cols = Array.from(row.childNodes).filter(a => a.tagName == "TD").map(a => a.innerHTML) 
 
         cols = cols.slice(0, cols.length - 1)
 
