@@ -2,6 +2,7 @@ import json
 from pprint import pprint
 from django.http import HttpResponse
 from django.shortcuts import render
+from copy import deepcopy
 
 import sys
 
@@ -68,10 +69,12 @@ def command(request):
     # And delete cmd to select only needed data
     del other_data["cmd"]
 
+    orig_data = deepcopy(other_data)
+
     # Converting all array values to string values in data
     for i in other_data.keys():
         other_data[i] = other_data[i][0]
-
+    
     # Do something with data we got
 
     if cmd == "new":
@@ -99,6 +102,18 @@ def command(request):
         })
 
         print(f"Remove: {other_data['inv_num']}")
+
+    elif cmd == "edit":
+        old_datas = dict((k, v[0]) for k, v in orig_data.items())
+        new_datas = dict((k, v[1]) for k, v in orig_data.items())
+
+        old_datas['inv_num'] = int(old_datas['inv_num'])
+        new_datas['inv_num'] = int(new_datas['inv_num'])
+
+        print("OLD", old_datas)
+        print("NEW", new_datas)
+
+        db.hardware_table.update_one(old_datas, {'$set': new_datas})
 
     # To edit entry we need to use .update() method what receives query and datas to edit.
 

@@ -346,6 +346,14 @@
         return response
     }
 
+    function arrays_to_object(keys, values) {
+        g = {}
+        for(i in keys) {
+            g[keys[i]] = values[i]
+        }
+        return g;
+    }
+    
     function add_device() {
         add_form_btn.disabled = true;
 
@@ -367,7 +375,7 @@
                 }
             })
         } else {
-            resp = send_edit_form_data(edit_orig_datas, values)
+            resp = send_edit_form_data(arrays_to_object(fields, edit_orig_datas), values)
             
             resp.then((data) => {
                 if(data.ok) {
@@ -386,8 +394,9 @@
     }
 
     function get_data_in_table(inv_num) {
-        row = document.getElementById(String(inv_num)).childNodes
-        cols = Array.from(row.childNodes).filter(a => a.tagName == "TD").map(a => a.innerHTML) 
+        row = document.getElementById(String(inv_num)).childNodes.entries()
+        
+        cols = Array.from(row).map(a => a[1]).filter(a => a.tagName == "TD").map(a => a.innerHTML) 
 
         cols = cols.slice(0, cols.length - 1)
 
@@ -396,6 +405,7 @@
 
     function delete_hw(inv_num) {
         dev = get_data_in_table(inv_num)
+        console.log("GOT")
         really = confirm("Вы точно хотите удалить устройство: \"" + dev[2] + " " + dev[3] + " " + dev[4] + "\"?")
     
         if(really) {
