@@ -4,7 +4,7 @@
 
 Mongo DB:
 ```
-echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" > /etc/apt/sources.list.d/mongodb-org-4.4.list
+echo "deb [trusted=yes] http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" > /etc/apt/sources.list.d/mongodb-org-4.4.list
 apt-get update
 
 apt-get install mongodb-org
