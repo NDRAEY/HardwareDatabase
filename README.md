@@ -15,8 +15,13 @@ apt-get install mongodb-org
 git clone https://github.com/NDRAEY/HardwareDatabase
 ```
 
-Запуск проекта:
+Установка проекта:
 ```
 cd HardwareDatabase/frontend
+pip3 install -r requirements.txt
+```
+
+Запуск проекта:
+```
 python manage.py runserver
 ```
