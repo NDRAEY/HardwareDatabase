@@ -27,6 +27,11 @@
     <div id="content">
         <span id="info">Список устройств</span>
         
+        <div id="pages" style="margin-top: 10px; font-size: 16px">
+            Страница <input id="page_num_input" value={{ page|add:1 }} style="width: 4em"></input> из {{ page_count|add:1 }}
+            <button onclick="switch_page()">Перейти</button>
+        </div>
+
         <table border>
             <thead>
                 <th>N</th>
@@ -378,6 +383,7 @@
             resp = send_edit_form_data(arrays_to_object(fields, edit_orig_datas), values)
             
             resp.then((data) => {
+                console.log(data)
                 if(data.ok) {
                     hide_add_dev();
                     location.reload()
@@ -430,5 +436,16 @@
         for(var i of supported) {
             i.childNodes[3].childNodes[1].value = ""
         }
+    }
+
+    function switch_page() {
+        const urlParams = new URLSearchParams(window.location.search);
+        var num = Number(document.getElementById("page_num_input").value) - 1
+
+        urlParams.set('p', num);
+
+        location.href = `${window.location.pathname}?${urlParams.toString()}`
+
+        console.log(num)
     }
 </script>

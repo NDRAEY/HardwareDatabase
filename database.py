@@ -82,12 +82,15 @@ class Database:
         invs = [i['inv_num'] for i in self.get_all()]
 
         if hardware.inv_num in invs:
-            raise ValueError("Inventory number should not repeat! (Hint: Delete device and add device again)")
+            raise ValueError(f"Inventory number should not repeat! (Hint: Delete device and add device again) [{hardware.inv_num}]")
 
         self.hardware_table.insert_one(hardware.__dict__)
 
     def get_all(self):
         return self.hardware_table.find()
+
+    def get_from_length(self, start, length):
+        return self.hardware_table.find().skip(start).limit(length)
 
     def get_by_vendor(self, vendor: str):
         return [i for i in self.hardware_table.find() if i['vendor'].lower() == vendor.lower()]
@@ -122,7 +125,11 @@ if __name__ == "__main__":
     hw3 = Hardware(802, "Монитор", "Overture", "Emix A2", "XSPN-111111111", "4K resuolution in 60 fps!")
     hw4 = Hardware(803, "Проектор", "Overture", "Avenue 2", "XSPN-367293224", "Projector with high resolution and strong light")
     hw5 = Hardware(804, "ПК", "Rammer", "Woundhealer E1", "MZ847284364", "With water cooling!")
-    hw6 = Hardware(805, "Жесткий диск", "ByteSaver", "LAVI-W", "UT0102223", "2 TB Hard Drive 100 MB/s")
 
-    for i in (hw, hw2, hw3, hw4, hw5, hw6):
+    for i in range(400):
+        hw_ = Hardware(805 + i, "Аудиосистема", "ByteSaver", "LAVI-W", "UT0" + str(i), "2 TB Hard Drive 100 MB/s")
+
+        db.add_hardware(hw_)
+
+    for i in (hw, hw2, hw3, hw4, hw5):
         db.add_hardware(i)

@@ -29,8 +29,14 @@ def prepare_table_fields():
 def report(request):
     keys: list = list(list(db.get_all())[0].keys())[1:]
 
+    page = int(request.GET.get("p", 0))
+    pagesize = int(request.GET.get("pagesize", 20))
+
     return render(request, "report_main.html", context={
-        'table_contents': [(n + 1, i) for n, i in enumerate(db.get_all())],
+        'table_contents': [(n + 1 + page * pagesize, i) for n, i in enumerate(db.get_from_length(page * pagesize, pagesize))],
+        'page': page,
+        'pagesize': pagesize,
+        'page_count': db.hardware_table.count_documents({}) // pagesize,
         'fields': prepare_table_fields()
     })
 
@@ -56,8 +62,29 @@ def check_data(data):
         return "description"
 
 
+def check_data_change(old, new):
+    "Return problematic field if error was occured, None on success"
+
+    if (not new["inv_num"]) or (not new["inv_num"].isdigit()):
+        return "inv_num"
+    if (not db.is_inv_num_free(int(new["inv_num"]))) and new["inv_num"] != old["inv_num"]:
+        return "inv_num"
+    if not new['vendor']:
+        return "vendor"
+    if not new['model']:
+        return "model"
+    if new["type"] not in list(db.metadata.find({}))[0]['hardware_types']:
+        return "type"
+    if not new['serial']:
+        return "serial"
+    if new["status"] not in list(db.metadata.find({}))[0]['statuses']:
+        return "status"
+    if not new['description']:
+        return "description"
+
+
 def command(request):
-    print("=======================GOT A COMMAND")
+    print("======================= GOT A COMMAND")
     print(request.GET)
 
     # Get parameters
@@ -106,6 +133,15 @@ def command(request):
     elif cmd == "edit":
         old_datas = dict((k, v[0]) for k, v in orig_data.items())
         new_datas = dict((k, v[1]) for k, v in orig_data.items())
+
+        # Check data, NOTE: None is good
+        check = check_data_change(old_datas, new_datas)
+
+        if not (check is None):
+            return HttpResponse(json.dumps({
+                "ok": False,
+                "message": check
+            }))
 
         old_datas['inv_num'] = int(old_datas['inv_num'])
         new_datas['inv_num'] = int(new_datas['inv_num'])
