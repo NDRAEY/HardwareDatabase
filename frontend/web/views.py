@@ -40,6 +40,20 @@ def report(request):
         'fields': prepare_table_fields()
     })
 
+def print_version(request):
+    keys: list = list(list(db.get_all())[0].keys())[1:]
+
+    page = int(request.GET.get("p", 0))
+    pagesize = int(request.GET.get("pagesize", 20))
+
+    return render(request, "print_version.html", context={
+        'table_contents': [(n + 1 + page * pagesize, i) for n, i in enumerate(db.get_from_length(page * pagesize, pagesize))],
+        'page': page,
+        'pagesize': pagesize,
+        'page_count': db.hardware_table.count_documents({}) // pagesize,
+        'fields': prepare_table_fields()
+    })
+
 
 def check_data(data):
     "Return problematic field if error was occured, None on success"

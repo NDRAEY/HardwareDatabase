@@ -1,0 +1,81 @@
+{% load static %}
+{% load array %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'web/main.css' %}">
+    <title>Главная</title>
+</head>
+<body>
+    <div id="banner">
+        <span id="name">Оборудование</span>
+    </div>
+
+    <div id="content">
+        <span id="info">Список устройств</span>
+        
+        <div id="pages_container">
+            <div id="pages" style="margin-top: 10px; font-size: 16px">
+                Страница {{ page|add:1 }} из {{ page_count|add:1 }}
+            </div>
+        </div>
+
+        <table border>
+            <thead>
+                <th>N</th>
+                <th>Инвертарный номер</th>
+                <th>Тип устройства</th>
+                <th>Производитель</th>
+                <th>Модель</th>
+                <th>Серийный номер</th>
+                <th>Статус</th>
+            </thead>
+            <tbody>
+                {% for i in table_contents %}
+                    <tr id="{{ i.1.inv_num }}" title="{{ i.1.description }}">
+                        <td>{{ i.0 }}</td>
+                        <td>{{ i.1.inv_num }}</td>
+                        <td>{{ i.1.type }}</td>
+                        <td>{{ i.1.vendor }}</td>
+                        <td>{{ i.1.model }}</td>
+                        <td>{{ i.1.serial }}</td>
+                        <td>{{ i.1.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+<script>
+    var months = [
+        "января",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    ]
+
+    var date = new Date();
+    const urlParams = new URLSearchParams(window.location.search);
+
+    var page_count = Number(document.getElementById("page_count").innerHTML);
+
+    document.getElementById("info").innerHTML += " на " + 
+                        date.getDate() + " " + 
+                        months[date.getMonth()] + " " + 
+                        date.getFullYear() + " г. " +
+                        "(" + String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") + ")"
+</script>

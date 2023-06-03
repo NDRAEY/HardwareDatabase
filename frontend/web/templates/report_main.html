@@ -1,15 +1,6 @@
 {% load static %}
 {% load array %}
 
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-<!-- TODO: Reduce code by classifying into JS and CSS files -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,14 +19,18 @@
     <div id="content">
         <span id="info">Список устройств</span>
         
-        <div id="pages" style="margin-top: 10px; font-size: 16px">
-            <button onclick="delta_page(-1)" id="prev_page">Предыдущая</button>
-            Страница
-             <input id="page_num_input" value="{{ page|add:1 }}" style="width: 4em"></input>
-             из
-             <span id="page_count">{{ page_count|add:1 }}</span>
-            <button onclick="switch_page()">Перейти</button>
-            <button onclick="delta_page(1)" id="next_page">Следующая</button>
+        <div id="pages_container">
+            <div id="pages" style="margin-top: 10px; font-size: 16px">
+                <button onclick="delta_page(-1)" id="prev_page">Предыдущая</button>
+                Страница
+                <input id="page_num_input" value="{{ page|add:1 }}" style="width: 4em"></input>
+                из
+                <span id="page_count">{{ page_count|add:1 }}</span>
+                <button onclick="switch_page()">Перейти</button>
+                <button onclick="delta_page(1)" id="next_page">Следующая</button>
+            </div>
+
+            <button id="print_version" onclick="open_printable_ver()">Версия для печати</button>
         </div>
 
         <table border>
@@ -364,5 +359,9 @@
         urlParams.set('p', num);
 
         location.href = `${window.location.pathname}?${urlParams.toString()}`
+    }
+
+    function open_printable_ver() {
+        location.href = `./print?${urlParams.toString()}`
     }
 </script>
