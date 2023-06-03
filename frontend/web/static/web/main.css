@@ -1,0 +1,99 @@
+body {
+    font-family: 'Lucida Sans', sans-serif;
+}
+
+#banner {
+    display: flex;
+    align-items: center;
+    height: 70px;
+
+    background-color: #3abb44 !important;
+
+    margin-bottom: 20px;
+}
+
+#banner #name {
+    font-size: 24px;
+    margin-left: 20px;
+}
+
+#info {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+table {
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+table thead th {
+    text-align: left;
+    padding: 10px;
+}
+
+table tbody tr td {
+    padding: 10px;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #999;
+}
+
+#content {
+    margin-left: 10px;
+}
+
+#add_device_field {
+    padding: 15px;
+    text-align: center;
+    background-color: #ccc;
+
+    font-weight: bold;
+}
+
+#add_device {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+#add_device_sign {
+    font-size: 36px;
+
+    padding-right: 6px;
+}
+
+.button {
+    padding: 6px;
+
+    border: black 1px solid;
+    border-radius: 7px;
+}
+
+#edit_btn {
+    background-color: rgb(59, 59, 196);
+
+    color: white;
+}
+
+#delete_btn {
+    background-color: red;
+    color: white;
+}
+
+.modal .modal-content .titlebox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal .modal-content .titlebox .close {
+    order: 1;
+}
+
+.modal .modal-content .titlebox .title {
+    font-size: 18px;
+    order: 0;
+}
