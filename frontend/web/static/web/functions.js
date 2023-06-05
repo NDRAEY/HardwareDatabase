@@ -15,12 +15,17 @@ var months = [
 
 function switch_page() {
     var num = Number(document.getElementById("page_num_input").value) - 1
+    var pagesize = Number(document.getElementById("records_in_page").value)
 
     if(num >= 0 && num < page_count) {
         urlParams.set('p', num);
-
-        location.href = `${window.location.pathname}?${urlParams.toString()}`
     }
+
+    if(pagesize >= 1 && pagesize <= 50) {
+        urlParams.set('pagesize', pagesize);
+    }
+
+    location.href = `${window.location.pathname}?${urlParams.toString()}`
 }
 
 function delta_page(delta) {

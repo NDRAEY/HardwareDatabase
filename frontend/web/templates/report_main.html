@@ -28,8 +28,11 @@
                 <span id="page_count">{{ page_count|add:1 }}</span>
                 <button onclick="switch_page()">Перейти</button>
                 <button onclick="delta_page(1)" id="next_page">Следующая</button>
+                
+                <br style="margin-bottom: 10px">
+                Записей в странице: <input id="records_in_page" value="{{ pagesize }}" style="width: 4em"></input>
             </div>
-
+            
             <button id="print_version" onclick="open_printable_ver()">Версия для печати</button>
         </div>
 
@@ -251,7 +254,7 @@
         
         add_form_btn.disabled = false;
     }
-    
+
     window.onload = () => {
         var supported = [];
 
