@@ -41,6 +41,7 @@ table tbody tr:nth-child(even) {
 }
 
 #content {
+    width: fit-content;
     margin-left: 10px;
 }
 
@@ -98,9 +99,13 @@ table tbody tr:nth-child(even) {
     order: 0;
 }
 
+#print_version {
+    padding: 0px 15px 0px 15px;
+}
+
 #pages_container {
 	display: flex;
 	flex-direction: row-reverse;
-	align-items: baseline;
+	/* align-items: baseline; */
 	justify-content: space-between;
 }

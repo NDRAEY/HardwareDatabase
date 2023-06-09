@@ -73,6 +73,7 @@ function arrays_to_object(keys, values) {
 }
 
 function delete_hw(inv_num) {
+    inv_num = Number(inv_num)
     dev = get_data_in_table(inv_num)
     console.log("GOT")
     really = confirm("Вы точно хотите удалить устройство: \"" + dev[2] + " " + dev[3] + " " + dev[4] + "\"?")
