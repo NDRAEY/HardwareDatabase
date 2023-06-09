@@ -2,7 +2,6 @@ import json
 from pprint import pprint
 from django.http import HttpResponse
 from django.shortcuts import render
-from copy import deepcopy
 
 import sys
 
@@ -19,12 +18,8 @@ db = database.Database()
 
 pprint(list(db.table_fields.find({}))[0])
 
-def prepare_table_fields():
-    fields = list(db.table_fields.find({}))[0]
-
-    del fields['_id']
-
-    return fields
+from backend import command as command_main
+from backend.data import prepare_table_fields
 
 def report(request):
     keys: list = list(list(db.get_all())[0].keys())[1:]
@@ -37,7 +32,7 @@ def report(request):
         'page': page,
         'pagesize': pagesize,
         'page_count': db.hardware_table.count_documents({}) // pagesize,
-        'fields': prepare_table_fields()
+        'fields': prepare_table_fields(db)
     })
 
 def print_version(request):
@@ -51,123 +46,8 @@ def print_version(request):
         'page': page,
         'pagesize': pagesize,
         'page_count': db.hardware_table.count_documents({}) // pagesize,
-        'fields': prepare_table_fields()
+        'fields': prepare_table_fields(db)
     })
 
-
-def check_data(data):
-    "Return problematic field if error was occured, None on success"
-
-    if not data["inv_num"]:
-        return "inv_num"
-    if not (data["inv_num"].isdigit() and db.is_inv_num_free(int(data["inv_num"]))):
-        return "inv_num"
-    if not data['vendor']:
-        return "vendor"
-    if not data['model']:
-        return "model"
-    if data["type"] not in list(db.metadata.find({}))[0]['hardware_types']:
-        return "type"
-    if not data['serial']:
-        return "serial"
-    if data["status"] not in list(db.metadata.find({}))[0]['statuses']:
-        return "status"
-    if not data['description']:
-        return "description"
-
-
-def check_data_change(old, new):
-    "Return problematic field if error was occured, None on success"
-
-    if (not new["inv_num"]) or (not new["inv_num"].isdigit()):
-        return "inv_num"
-    if (not db.is_inv_num_free(int(new["inv_num"]))) and new["inv_num"] != old["inv_num"]:
-        return "inv_num"
-    if not new['vendor']:
-        return "vendor"
-    if not new['model']:
-        return "model"
-    if new["type"] not in list(db.metadata.find({}))[0]['hardware_types']:
-        return "type"
-    if not new['serial']:
-        return "serial"
-    if new["status"] not in list(db.metadata.find({}))[0]['statuses']:
-        return "status"
-    if not new['description']:
-        return "description"
-
-
 def command(request):
-    print("======================= GOT A COMMAND")
-    print(request.GET)
-
-    # Get parameters
-    cmd = request.GET.get("cmd", None)
-    
-    # COnvert to normal dict
-    other_data = dict(request.GET)
-
-    # And delete cmd to select only needed data
-    del other_data["cmd"]
-
-    orig_data = deepcopy(other_data)
-
-    # Converting all array values to string values in data
-    for i in other_data.keys():
-        other_data[i] = other_data[i][0]
-    
-    # Do something with data we got
-
-    if cmd == "new":
-        # Check data, NOTE: None is good
-        check = check_data(other_data)
-
-        if not (check is None):
-            return HttpResponse(json.dumps({
-                "ok": False,
-                "message": check
-            }))
-
-        db.add_hardware(database.Hardware(
-            int(other_data['inv_num']),
-            other_data['type'],
-            other_data['vendor'],
-            other_data['model'],
-            other_data['serial'],
-            other_data['description'],
-            other_data['status']
-        ))
-    elif cmd == "del":
-        db.hardware_table.delete_one({
-            "inv_num": int(other_data["inv_num"])
-        })
-
-        print(f"Remove: {other_data['inv_num']}")
-
-    elif cmd == "edit":
-        old_datas = dict((k, v[0]) for k, v in orig_data.items())
-        new_datas = dict((k, v[1]) for k, v in orig_data.items())
-
-        # Check data, NOTE: None is good
-        check = check_data_change(old_datas, new_datas)
-
-        if not (check is None):
-            return HttpResponse(json.dumps({
-                "ok": False,
-                "message": check
-            }))
-
-        old_datas['inv_num'] = int(old_datas['inv_num'])
-        new_datas['inv_num'] = int(new_datas['inv_num'])
-
-        print("OLD", old_datas)
-        print("NEW", new_datas)
-
-        db.hardware_table.update_one(old_datas, {'$set': new_datas})
-
-    # To edit entry we need to use .update() method what receives query and datas to edit.
-
-    # JSON response
-    return HttpResponse(json.dumps({
-        "ok": True
-    }))
+    return command_main.command(db, request)
