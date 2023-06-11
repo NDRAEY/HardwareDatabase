@@ -45,7 +45,7 @@ table tbody tr:nth-child(even) {
     margin-left: 10px;
 }
 
-#add_device_field {
+#add_field {
     padding: 15px;
     text-align: center;
     background-color: #ccc;
@@ -53,14 +53,14 @@ table tbody tr:nth-child(even) {
     font-weight: bold;
 }
 
-#add_device {
+#add {
     display: flex;
 
     align-items: center;
     justify-content: center;
 }
 
-#add_device_sign {
+#add_sign {
     font-size: 36px;
 
     padding-right: 6px;

@@ -1,0 +1,36 @@
+<div id="add_modal" class="modal">
+    <div class="modal-content">
+        <div class="titlebox">
+            <span class="close" onclick="hide_add()">&times;</span>
+            <span class="title">
+                <b id="add_modal_text">Добавить</b>
+                <b id="edit_modal_text">Редактировать</b>
+            </span>
+        </div>
+        <table border="">
+            <tbody id="add_modal_table">
+                <!-- Fields -->
+
+                {% for id, value in fields.items %}
+                    <tr>
+                        <td>{{ value.show }}</td>
+                        <td>
+                            {% if value.type == "input" %}
+                            <input id="{{ id }}"></input>
+                            {% elif value.type == "dropdown" %}
+                            <select id="{{ id }}">
+                                {% for elem in value.elements %}
+                                <option value="{{ elem }}">{{ elem }}</option>
+                                {% endfor %}
+                            </select>
+                            {% elif value.type == "textbox" %}
+                            <textarea id="{{ id }}"></textarea>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+            <button class="button" style="margin-top: 5px" id="add_modal_btn" onclick="add()">Окей</button>
+      </div>
+</div>

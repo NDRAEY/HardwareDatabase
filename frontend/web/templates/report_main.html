@@ -8,6 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'web/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'web/css/modal.css' %}">
     <title>Главная</title>
 </head>
 <body>
@@ -63,7 +64,7 @@
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="{{ fields.keys|len_array|add:1 }}" id="add_device_field" onclick="show_add_dev()">
+                    <td colspan="{{ fields.keys|len_array|add:1 }}" id="add_device_field" onclick="show_add()">
                         <div id="add_device">
                             <span id="add_device_sign">+</span>
                             <span id="add_device_text">Добавить новое устройство</span>
@@ -73,42 +74,7 @@
             </tbody>
         </table>
 
-        <div id="add_dev_modal" class="modal">
-            <div class="modal-content">
-                <div class="titlebox">
-                    <span class="close" onclick="hide_add_dev()">&times;</span>
-                    <span class="title">
-                        <b id="add_dev_text">Добавить устройство</b>
-                        <b id="edit_dev_text">Редактировать устройство</b>
-                    </span>
-                </div>
-                <table border="">
-                    <tbody id="add_dev_table">
-                        <!-- Fields -->
-        
-                        {% for id, value in fields.items %}
-                            <tr>
-                                <td>{{ value.show }}</td>
-                                <td>
-                                    {% if value.type == "input" %}
-                                    <input id="{{ id }}"></input>
-                                    {% elif value.type == "dropdown" %}
-                                    <select id="{{ id }}">
-                                        {% for elem in value.elements %}
-                                        <option value="{{ elem }}">{{ elem }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    {% elif value.type == "textbox" %}
-                                    <textarea id="{{ id }}"></textarea>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                    </table>
-                    <button class="button" style="margin-top: 5px" id="add_dev_btn" onclick="add_device()">Окей</button>
-              </div>
-        </div>
+        {% include "modal.html" %}
     </div>
 </body>
 </html>
@@ -127,9 +93,6 @@
                         "(" + String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0") + ")"
 
     // Modal window control for adding
-
-    var modal_add = document.getElementById("add_dev_modal")
-
     var is_editing = false;
     var edit_num = 0;
     var edit_orig_datas = null;
@@ -150,7 +113,7 @@
 
         edit_orig_datas = datas
         
-        show_add_dev()
+        show_add()
 
         form_elems = get_add_form_elems()
 
@@ -159,28 +122,8 @@
         }
     }
 
-    function show_add_dev() {
-        modal_add.style.display = "flex"
-
-        if(is_editing) {
-            document.getElementById("add_dev_text").style.display = "none"
-            document.getElementById("edit_dev_text").style.display = "block"
-        } else {
-            document.getElementById("add_dev_text").style.display = "block"
-            document.getElementById("edit_dev_text").style.display = "none"
-        }
-    }
-
-    function hide_add_dev() {
-        modal_add.style.display = "none"
-    
-        is_editing = false;
-    }
-
     // Work with add form
 
-    var add_form = document.getElementById("add_dev_table")
-    var add_form_btn = document.getElementById("add_dev_btn")
     var fields = [{% for id, value in fields.items %}"{{ id }}", {% endfor %}];
 
     function get_add_form_elems() {
@@ -215,7 +158,7 @@
         return request;
     }
     
-    function add_device() {
+    function add() {
         add_form_btn.disabled = true;
 
         elems = get_add_form_elems()
@@ -226,7 +169,7 @@
             
             resp.then((data) => {
                 if(data.ok) {
-                    hide_add_dev();
+                    hide_add();
                     location.reload()
                 } else {
                     for(i of elems) {
@@ -241,7 +184,7 @@
             resp.then((data) => {
                 console.log(data)
                 if(data.ok) {
-                    hide_add_dev();
+                    hide_add();
                     location.reload()
                 } else {
                     for(i of elems) {

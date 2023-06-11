@@ -8,6 +8,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'web/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'web/css/modal.css' %}">
+
+    <script src="{% static 'web/js/functions.js' %}"></script>
     <title>Главная</title>
 </head>
 <body>
@@ -16,38 +19,39 @@
     </div>
 
     <div id="content">
-        <span id="info">Список устройств</span>
-        
-        <div id="pages_container">
-            <div id="pages" style="margin-top: 10px; font-size: 16px">
-                Страница {{ page|add:1 }} из {{ page_count|add:1 }}
-            </div>
-        </div>
+        <span id="info">Список сотрудников</span>
 
         <table border>
             <thead>
                 <th>N</th>
-                <th>Инвертарный номер</th>
-                <th>Тип устройства</th>
-                <th>Производитель</th>
-                <th>Модель</th>
-                <th>Серийный номер</th>
-                <th>Статус</th>
+                <th>Фамилия</th>
+                <th>Имя</th>
+                <th>Отчество</th>
+                <th>Отдел</th>
             </thead>
             <tbody>
                 {% for i in table_contents %}
-                    <tr id="{{ i.1.inv_num }}" title="{{ i.1.description }}">
-                        <td>{{ i.0 }}</td>
-                        <td>{{ i.1.inv_num }}</td>
-                        <td>{{ i.1.type }}</td>
-                        <td>{{ i.1.vendor }}</td>
-                        <td>{{ i.1.model }}</td>
-                        <td>{{ i.1.serial }}</td>
-                        <td>{{ i.1.status }}</td>
+                    <tr id="{{ i.1.id }}">
+                        <td>{{ i.id }}</td>
+                        <td>{{ i.surname }}</td>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.patronymic }}</td>
+                        <td>{{ i.hpart_name }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
+    
+            <tr>
+                <td colspan="{{ fields.keys|len_array|add:1 }}" id="add_field" onclick="show_add()">
+                    <div id="add">
+                        <span id="add_sign">+</span>
+                        <span id="add_text">Добавить</span>
+                    </div>
+                </td>
+            </tr>
         </table>
+
+        {% include "modal.html" %}
     </div>
 </body>
 </html>

@@ -13,6 +13,11 @@ var months = [
     "декабря"
 ]
 
+var modal_add = document.getElementById("add_modal")
+
+var add_form = document.getElementById("add_modal_table")
+var add_form_btn = document.getElementById("add_modal_btn")
+
 function switch_page() {
     var num = Number(document.getElementById("page_num_input").value) - 1
     var pagesize = Number(document.getElementById("records_in_page").value)
@@ -95,4 +100,22 @@ function get_data_in_table(inv_num) {
     cols = cols.slice(0, cols.length - 1)
 
     return cols
+}
+
+function show_add() {
+    modal_add.style.display = "flex"
+
+    if(is_editing) {
+        document.getElementById("add_modal_text").style.display = "none"
+        document.getElementById("edit_modal_text").style.display = "block"
+    } else {
+        document.getElementById("add_modal_text").style.display = "block"
+        document.getElementById("edit_modal_text").style.display = "none"
+    }
+}
+
+function hide_add() {
+    modal_add.style.display = "none"
+
+    is_editing = false;
 }

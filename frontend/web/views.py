@@ -49,5 +49,21 @@ def print_version(request):
         'fields': prepare_table_fields(db)
     })
 
+def employees(request):
+    employees = list(db.employees.find({}))
+    hparts = list(db.hparts.find({}))
+
+    # Set name of HPart for every employee based on HPart's ID
+    for n, _ in enumerate(employees):
+        for i in hparts:
+            if i['id'] == employees[n]['hpart_id']:
+                employees[n]['hpart_name'] = i['name']
+                break
+
+    return render(request, "employees.html", context={
+        'table_contents': employees,
+        'fields': prepare_table_fields(db)
+    })
+
 def command(request):
     return command_main.command(db, request)
