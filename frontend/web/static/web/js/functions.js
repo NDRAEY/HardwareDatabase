@@ -68,6 +68,13 @@ function send_add_employee_form_data(data) {
     return response
 }
 
+function send_add_hpart_form_data(data) {
+    let resp = fetch("/cmd?" + object_to_get(data) + "cmd=hpart_new")
+    let response = resp.then(response => {return response.json()})
+
+    return response
+}
+
 function send_edit_form_data(old_data, data) {
     let resp = fetch("/cmd?" + object_to_get(old_data) + object_to_get(data) + "cmd=edit")
     let response = resp.then(response => {return response.json()})

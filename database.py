@@ -20,6 +20,7 @@ table_fields = {
     'model': {'type': 'input', 'show': 'Модель'},
     'serial': {'type': 'input', 'show': 'Серийный номер'},
     'status': {'type': 'dropdown', 'show': 'Статус', 'elements': "metadata.statuses"},
+    'employee': {'type': 'dropdown', 'show': 'Отвественный', 'elements': "employees"},
     'description': {'type': 'textbox', 'show': 'Описание'},
 }
 
@@ -41,14 +42,14 @@ metadata = {
 }
 
 class Hardware:
-    def __init__(self, inv_num, type_, vendor, model, serial, description, status = "Нет"):
+    def __init__(self, inv_num, type_, vendor, model, serial, description, employee, status = "Нет"):
         self.inv_num = inv_num
         self.type = type_
         self.vendor = vendor
         self.model = model
         self.serial = serial
-
         self.status = status
+        self.employee = employee
         self.description = description
 
 class HPart:
@@ -132,6 +133,9 @@ class Database:
                 if k == "hpart_name":
                     data[k]['elements'] = [i['name'] for i in self.hparts.find({})]
                     continue
+                elif k == "employee":
+                    data[k]["elements"] = [f"{i['surname']} {i['name']} {i['patronymic']}" for i in self.employees.find({})]
+                    continue
 
                 keys = v['elements'].split(".")
 
@@ -200,22 +204,15 @@ if __name__ == "__main__":
     db.clean_db()
     db.setup()
 
-    hw =  Hardware(800, "ПК", "Rammer", "PowerBook Zeraora V2", "MZ0000001", "CPU: Intel Core i3")
-    hw2 = Hardware(801, "Маршрутизатор", "Besk", "Lannive QA Plus", "AWN-100566632", "WiFi 6 included!")
-    hw3 = Hardware(802, "Монитор", "Overture", "Emix A2", "XSPN-111111111", "4K resuolution in 60 fps!")
-    hw4 = Hardware(803, "Проектор", "Overture", "Avenue 2", "XSPN-367293224", "Projector with high resolution and strong light")
-    hw5 = Hardware(804, "ПК", "Rammer", "Woundhealer E1", "MZ847284364", "With water cooling!")
+    # for n, i in enumerate(("ABC", "DEF", "GHI")):
+    #     db.add_hpart(HPart(n, i))
 
-    for i in range(200):
-        hw_ = Hardware(805 + i, "Аудиосистема", "ByteSaver", "LAVI-W", "UT0" + str(i), "2 TB Hard Drive 100 MB/s")
+    # for n, i in enumerate(("Clark", "Max", "Drew", "Eric", "Mark", "David")):
+    #     db.add_employee(Employee(n, "Markin", i, "Eduardovich", 0))
 
-        db.add_hardware(hw_)
+    # db.add_employee(Employee(99, "Thunder", "Zeraora", "-----------", 1))
 
-    for i in (hw, hw2, hw3, hw4, hw5):
-        db.add_hardware(i)
+    # for i in range(15):
+    #     hw_ = Hardware(800 + i, "Аудиосистема", "ByteSaver", "LAVI-W", "UT0" + str(i), "2 TB Hard Drive 100 MB/s", "Thunder Zeraora ------------")
 
-    for n, i in enumerate(("ABC", "DEF", "GHI")):
-        db.add_hpart(HPart(n, i))
-
-    for n, i in enumerate(("Clark", "Max", "Drew", "Eric", "Mark", "David")):
-        db.add_employee(Employee(n, "Markin", i, "Eduardovich", 0))
+    #     db.add_hardware(hw_)

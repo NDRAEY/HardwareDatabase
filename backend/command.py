@@ -1,5 +1,5 @@
 from copy import deepcopy
-from backend.check import check_data, check_data_change, check_employee
+from backend.check import check_data, check_data_change, check_employee, check_hpart
 from django.http import HttpResponse
 import database
 import json
@@ -41,6 +41,7 @@ def command(db, request):
             other_data['model'],
             other_data['serial'],
             other_data['description'],
+            other_data['employee'],
             other_data['status']
         ))
     elif cmd == "del":
@@ -51,7 +52,7 @@ def command(db, request):
 
         print(f"Remove: {other_data['inv_num']}")
 
-    elif cmd == "edit":
+    elif cmd == "edit":  # Отредактировать устройство
         "Get old and new data, and update data."
         old_datas = dict((k, v[0]) for k, v in orig_data.items())
         new_datas = dict((k, v[1]) for k, v in orig_data.items())
@@ -73,7 +74,7 @@ def command(db, request):
 
         db.hardware_table.update_one(old_datas, {'$set': new_datas})
 
-    elif cmd == "employee_new":
+    elif cmd == "employee_new":  # Новый сотрудник
         check = check_employee(db, other_data)
 
         if check is not None:
@@ -81,14 +82,32 @@ def command(db, request):
                 'ok': False,
                 'message': check
             }))
+
+        next_id = 1
+
+        if list(db.employees.find({})):
+            next_id = list(db.employees.find({}))[-1]["id"] + 1
         
         db.add_employee(database.Employee(
-            list(db.employees.find({}))[-1]["id"] + 1, 
+            next_id, 
             other_data["surname"], 
             other_data["name"], 
             other_data["patronymic"], 
             db.get_hpart_id_by_name(other_data["hpart_name"])
         ))
+
+    elif cmd == "hpart_new":  # Новый отдел
+        check = check_hpart(db, other_data)
+
+        if check is not None:
+            return HttpResponse(json.dumps({
+                'ok': False,
+                'message': check
+            }))
+        
+        other_data["id"] = int(other_data["id"])
+        
+        db.add_hpart(database.HPart(other_data["id"], other_data["name"]))
 
     # To edit entry we need to use .update() (in MongoDB shell) method what receives query and datas to edit.
 

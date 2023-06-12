@@ -14,7 +14,9 @@
 <body>
     <div id="banner">
         <span id="proj_name">Оборудование</span>
+        {% include "navigation.html" %}
     </div>
+
 
     <div id="content">
         <span id="info">Список устройств</span>
@@ -45,6 +47,7 @@
                 <th>Модель</th>
                 <th>Серийный номер</th>
                 <th>Статус</th>
+                <th>Ответственный</th>
                 <th>Действие</th>
             </thead>
             <tbody>
@@ -57,6 +60,7 @@
                         <td>{{ i.1.model }}</td>
                         <td>{{ i.1.serial }}</td>
                         <td>{{ i.1.status }}</td>
+                        <td>{{ i.1.employee }}</td>
                         <td>
                             <button class="button" id="edit_btn" onclick="edit_mode('{{ i.1.inv_num }}')">Изменить</button>
                             <button class="button" id="delete_btn" onclick="delete_hw('{{ i.1.inv_num }}')">Удалить</button>
@@ -144,6 +148,7 @@
                         i.style.backgroundColor = "white"
                     }
                     document.getElementById(data.message).style.backgroundColor = "red"
+                    document.getElementById(data.message).focus()
                 }
             })
         } else {
