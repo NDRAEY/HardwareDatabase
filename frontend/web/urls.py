@@ -6,4 +6,5 @@ urlpatterns = [
     path('print', views.print_version),
     path('cmd', views.command),
     path('employees', views.employees),
+    path('hparts', views.hparts),
 ]

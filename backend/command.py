@@ -1,5 +1,5 @@
 from copy import deepcopy
-from backend.check import check_data, check_data_change
+from backend.check import check_data, check_data_change, check_employee
 from django.http import HttpResponse
 import database
 import json
@@ -72,6 +72,23 @@ def command(db, request):
         print("NEW", new_datas)
 
         db.hardware_table.update_one(old_datas, {'$set': new_datas})
+
+    elif cmd == "employee_new":
+        check = check_employee(db, other_data)
+
+        if check is not None:
+            return HttpResponse(json.dumps({
+                'ok': False,
+                'message': check
+            }))
+        
+        db.add_employee(database.Employee(
+            list(db.employees.find({}))[-1]["id"] + 1, 
+            other_data["surname"], 
+            other_data["name"], 
+            other_data["patronymic"], 
+            db.get_hpart_id_by_name(other_data["hpart_name"])
+        ))
 
     # To edit entry we need to use .update() (in MongoDB shell) method what receives query and datas to edit.
 

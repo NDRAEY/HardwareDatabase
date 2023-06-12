@@ -16,14 +16,9 @@ import database
 
 db = database.Database()
 
-pprint(list(db.table_fields.find({}))[0])
-
 from backend import command as command_main
-from backend.data import prepare_table_fields
 
 def report(request):
-    keys: list = list(list(db.get_all())[0].keys())[1:]
-
     page = int(request.GET.get("p", 0))
     pagesize = int(request.GET.get("pagesize", 20))
 
@@ -32,12 +27,10 @@ def report(request):
         'page': page,
         'pagesize': pagesize,
         'page_count': db.hardware_table.count_documents({}) // pagesize,
-        'fields': prepare_table_fields(db)
+        'fields': db.evaluate_fields('table_fields')
     })
 
 def print_version(request):
-    keys: list = list(list(db.get_all())[0].keys())[1:]
-
     page = int(request.GET.get("p", 0))
     pagesize = int(request.GET.get("pagesize", 20))
 
@@ -46,7 +39,7 @@ def print_version(request):
         'page': page,
         'pagesize': pagesize,
         'page_count': db.hardware_table.count_documents({}) // pagesize,
-        'fields': prepare_table_fields(db)
+        'fields': db.evaluate_fields('table_fields')
     })
 
 def employees(request):
@@ -62,7 +55,15 @@ def employees(request):
 
     return render(request, "employees.html", context={
         'table_contents': employees,
-        'fields': prepare_table_fields(db)
+        'fields': db.evaluate_fields('employees_table_fields')
+    })
+
+def hparts(request):
+    hp = list(db.hparts.find({}))
+
+    return render(request, "hparts.html", context={
+        'table_contents': hp,
+        'fields': db.evaluate_fields('hparts_table_fields')
     })
 
 def command(request):

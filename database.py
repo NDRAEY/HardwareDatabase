@@ -15,12 +15,24 @@ DEFAULT_HARDWARE_TYPES = [
 
 table_fields = {
     'inv_num': {'type': 'input', 'show': 'Инвертарный номер'},
-    'type': {'type': 'dropdown', 'show': 'Тип', 'elements': DEFAULT_HARDWARE_TYPES},
+    'type': {'type': 'dropdown', 'show': 'Тип', 'elements': "metadata.hardware_types"},
     'vendor': {'type': 'input', 'show': 'Производитель'},
     'model': {'type': 'input', 'show': 'Модель'},
     'serial': {'type': 'input', 'show': 'Серийный номер'},
-    'status': {'type': 'dropdown', 'show': 'Статус', 'elements': DEFAULT_STATUSES},
+    'status': {'type': 'dropdown', 'show': 'Статус', 'elements': "metadata.statuses"},
     'description': {'type': 'textbox', 'show': 'Описание'},
+}
+
+employees_table_fields = {
+    'surname': {'type': 'input', 'show': 'Фамилия'},
+    'name': {'type': 'input', 'show': 'Имя'},
+    'patronymic': {'type': 'input', 'show': 'Отчество'},
+    'hpart_name': {'type': 'dropdown', 'show': 'Отдел', 'elements': "hparts.name"}
+}
+
+hparts_table_fields = {
+    'id': {'type': 'input', 'show': 'ID'},
+    'name': {'type': 'input', 'show': 'Название'},
 }
 
 metadata = {
@@ -35,9 +47,6 @@ class Hardware:
         self.vendor = vendor
         self.model = model
         self.serial = serial
-
-        if status not in table_fields['status']['elements']:
-            raise ValueError(f"Status does not exist: '{status}'")
 
         self.status = status
         self.description = description
@@ -74,16 +83,25 @@ class Database:
         self.metadata = self.db.metadata  # Дополнительные данные
 
         self.employees = self.db.employees  # Сотрудники
+        self.employees_table_fields = self.db.employees_table_fields  # Сотрудники
+        
         self.hparts = self.db.hparts  # Отделы
+        self.hparts_table_fields = self.db.hparts_table_fields  # Сотрудники
 
+    # Настройка
     def setup(self):
         self.table_fields.insert_one(table_fields)
+        self.employees_table_fields.insert_one(employees_table_fields)
+        self.hparts_table_fields.insert_one(hparts_table_fields)
         self.metadata.insert_one(metadata)
 
-    # For debugging
+    # Очистка всей БД
     def clean_db(self):
         "Remove every collection data to make a clean DB"
         self.table_fields.delete_many({})
+        self.employees_table_fields.delete_many({})
+        self.hparts_table_fields.delete_many({})
+
         self.hardware_table.delete_many({})
         self.metadata.delete_many({})
         
@@ -92,6 +110,42 @@ class Database:
 
     def is_inv_num_free(self, num: int):
         return not (num in [i['inv_num'] for i in self.get_all()])
+
+    def get_hpart_id_by_name(self, name: str):
+        for i in self.hparts.find({}):
+            if i["name"] == name:
+                return i["id"]
+
+    def evaluate_fields(self, fields_name):
+        "Evaluate links in values"
+
+        if not list(self.db[fields_name].find({})):
+            return {}
+
+        # Get data from `fields_name`
+        data: dict = list(self.db[fields_name].find({}))[0]
+
+        # Go through data and if we get string in `elements` key, get following field (by string) from db.
+        for k, v in data.items():
+            if type(v) is dict and v['type'] == "dropdown":
+                # FIXME
+                if k == "hpart_name":
+                    data[k]['elements'] = [i['name'] for i in self.hparts.find({})]
+                    continue
+
+                keys = v['elements'].split(".")
+
+                temp = list(self.db[keys[0]].find({}))[0]
+                del keys[0]
+
+                for i in keys:
+                    temp = temp[i]
+                
+                data[k]['elements'] = temp
+        
+        del data['_id']
+
+        return data
 
     def add_hardware(self, hardware: Hardware):
         # INV NUMS should not repeat!
@@ -118,26 +172,26 @@ class Database:
     def get_from_length(self, start, length):
         return self.hardware_table.find().skip(start).limit(length)
 
-    def get_by_vendor(self, vendor: str):
-        return [i for i in self.hardware_table.find() if i['vendor'].lower() == vendor.lower()]
+    # def get_by_vendor(self, vendor: str):
+    #     return [i for i in self.hardware_table.find() if i['vendor'].lower() == vendor.lower()]
     
-    def get_by_name(self, name: str):
-        return [i for i in self.hardware_table.find() if i['name'].lower() == name.lower()]
+    # def get_by_name(self, name: str):
+    #     return [i for i in self.hardware_table.find() if i['name'].lower() == name.lower()]
     
-    def get_by_model(self, model: str):
-        return [i for i in self.hardware_table.find() if i['model'].lower() == model.lower()]
+    # def get_by_model(self, model: str):
+    #     return [i for i in self.hardware_table.find() if i['model'].lower() == model.lower()]
     
-    def get_by_serial(self, serial: str):
-        return [i for i in self.hardware_table.find() if i['serial'].lower() == serial.lower()]
+    # def get_by_serial(self, serial: str):
+    #     return [i for i in self.hardware_table.find() if i['serial'].lower() == serial.lower()]
     
-    def get_by_status(self, status: int):
-        return [i for i in self.hardware_table.find() if i['status'] == status]
+    # def get_by_status(self, status: int):
+    #     return [i for i in self.hardware_table.find() if i['status'] == status]
 
-    def get_by_inv_num(self, inv_num: int):
-        return [i for i in self.hardware_table.find() if i['inv_num'] == inv_num]
+    # def get_by_inv_num(self, inv_num: int):
+    #     return [i for i in self.hardware_table.find() if i['inv_num'] == inv_num]
 
-    def get_by_type(self, type_: str):
-        return [i for i in self.hardware_table.find() if i['type'].lower() == type_.lower()]
+    # def get_by_type(self, type_: str):
+    #     return [i for i in self.hardware_table.find() if i['type'].lower() == type_.lower()]
 
 
 if __name__ == "__main__":

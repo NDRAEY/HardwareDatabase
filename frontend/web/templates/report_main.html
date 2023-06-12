@@ -13,7 +13,7 @@
 </head>
 <body>
     <div id="banner">
-        <span id="name">Оборудование</span>
+        <span id="proj_name">Оборудование</span>
     </div>
 
     <div id="content">
@@ -64,10 +64,10 @@
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="{{ fields.keys|len_array|add:1 }}" id="add_device_field" onclick="show_add()">
-                        <div id="add_device">
-                            <span id="add_device_sign">+</span>
-                            <span id="add_device_text">Добавить новое устройство</span>
+                    <td colspan="{{ fields.keys|len_array|add:1 }}" id="add_field" onclick="show_add()">
+                        <div id="add">
+                            <span id="add_sign">+</span>
+                            <span id="add_text">Добавить новое устройство</span>
                         </div>
                     </td>
                 </tr>
@@ -125,38 +125,6 @@
     // Work with add form
 
     var fields = [{% for id, value in fields.items %}"{{ id }}", {% endfor %}];
-
-    function get_add_form_elems() {
-        if(modal_add.style.display == "none" || modal_add.style.display == "") {
-            return;
-        }
-
-        var supported = [];
-
-        for(var i of add_form.childNodes.entries()) {
-            if(i[1].tagName == "TR") {
-                supported.push(i[1])
-            }
-        }
-
-        var elems = [];
-
-        for(var i of supported) {
-            elems.push(i.childNodes[3].childNodes[1])  // NOTE: Fourth element is a second <td> tag and input is located at the second element of <td> tag!
-        }
-
-        return elems;
-    }
-
-    function get_form_values(elems) {
-        var request = {};
-
-        for(var i in fields) {
-            request[fields[i]] = elems[i].value
-        }
-
-        return request;
-    }
     
     function add() {
         add_form_btn.disabled = true;

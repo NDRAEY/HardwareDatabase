@@ -16,15 +16,15 @@
                         <td>{{ value.show }}</td>
                         <td>
                             {% if value.type == "input" %}
-                            <input id="{{ id }}"></input>
+                                <input id="{{ id }}"></input>
                             {% elif value.type == "dropdown" %}
-                            <select id="{{ id }}">
-                                {% for elem in value.elements %}
-                                <option value="{{ elem }}">{{ elem }}</option>
-                                {% endfor %}
-                            </select>
+                                <select id="{{ id }}">
+                                    {% for elem in value.elements %}
+                                    <option value="{{ elem }}">{{ elem }}</option>
+                                    {% endfor %}
+                                </select>
                             {% elif value.type == "textbox" %}
-                            <textarea id="{{ id }}"></textarea>
+                                <textarea id="{{ id }}"></textarea>
                             {% endif %}
                         </td>
                     </tr>

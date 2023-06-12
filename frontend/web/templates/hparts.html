@@ -19,24 +19,18 @@
     </div>
 
     <div id="content">
-        <span id="info">Список сотрудников</span>
+        <span id="info">Список отделов</span>
 
         <table border>
             <thead>
-                <th>N</th>
-                <th>Фамилия</th>
-                <th>Имя</th>
-                <th>Отчество</th>
-                <th>Отдел</th>
+                <th>ID</th>
+                <th>Название</th>
             </thead>
             <tbody>
                 {% for i in table_contents %}
                     <tr id="{{ i.1.id }}">
                         <td>{{ i.id }}</td>
-                        <td>{{ i.surname }}</td>
                         <td>{{ i.name }}</td>
-                        <td>{{ i.patronymic }}</td>
-                        <td>{{ i.hpart_name }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -83,7 +77,7 @@
 
         console.log(values)
 
-        resp = send_add_employee_form_data(values)
+        resp = send_add_hpart_form_data(values)
         
         resp.then((data) => {
             if(data.ok) {

@@ -38,3 +38,13 @@ def check_data_change(db, old, new):
         return "status"
     if not new['description']:
         return "description"
+
+def check_employee(db, data):
+    if not data["surname"]:
+        return "surname"
+    if not data["name"]:
+        return "name"
+    if not data["patronymic"]:
+        return "patronymic"
+    if (data["hpart_name"] not in [i['name'] for i in db.hparts.find({})]):
+        return "hpart_name"
